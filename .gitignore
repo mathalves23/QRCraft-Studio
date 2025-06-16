@@ -1,24 +1,80 @@
-# Compiled class file
-*.class
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
 
-# Log file
-*.log
+# Production builds
+dist/
+build/
 
-# BlueJ files
-*.ctxt
+# Development
+.vite/
+.cache/
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# Dependency directories
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Mobile (Capacitor)
+android/app/build/
+android/.gradle/
+ios/App/build/
+ios/App/Pods/
+
+# Temporary files
+.tmp/
+.temp/
