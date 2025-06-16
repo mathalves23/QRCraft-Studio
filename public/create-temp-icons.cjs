@@ -1,0 +1,51 @@
+// Create temporary PWA icons
+const fs = require('fs');
+
+// Create SVG icon
+const svgIcon = `
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+  
+  <!-- QR Code corners -->
+  <rect x="64" y="64" width="128" height="128" fill="white"/>
+  <rect x="106" y="106" width="44" height="44" fill="#3b82f6"/>
+  
+  <rect x="320" y="64" width="128" height="128" fill="white"/>
+  <rect x="362" y="106" width="44" height="44" fill="#3b82f6"/>
+  
+  <rect x="64" y="320" width="128" height="128" fill="white"/>
+  <rect x="106" y="362" width="44" height="44" fill="#3b82f6"/>
+  
+  <!-- Center logo -->
+  <rect x="192" y="192" width="128" height="128" fill="white" rx="20"/>
+  <text x="256" y="275" text-anchor="middle" font-family="Arial" font-size="64" font-weight="bold" fill="#3b82f6">QR</text>
+  
+  <!-- Decorative blocks -->
+  <rect x="220" y="220" width="20" height="20" fill="white"/>
+  <rect x="270" y="220" width="20" height="20" fill="white"/>
+  <rect x="220" y="270" width="20" height="20" fill="white"/>
+  <rect x="270" y="270" width="20" height="20" fill="white"/>
+</svg>
+`.trim();
+
+// Save SVG
+fs.writeFileSync('public/icon.svg', svgIcon);
+console.log('✅ Created public/icon.svg');
+
+console.log('\n📋 Next steps:');
+console.log('1. Open https://qrcraftstudio.netlify.app/generate-icons.html');
+console.log('2. Generate and download PWA icons');
+console.log('3. Place them in the public/ folder');
+console.log('4. Run npm run build && npm run deploy');
+
+console.log('\n🎯 Or use online converters:');
+console.log('- https://realfavicongenerator.net/');
+console.log('- https://www.pwabuilder.com/imageGenerator'); 

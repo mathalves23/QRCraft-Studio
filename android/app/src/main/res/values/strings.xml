@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">QRCraft Studio</string>
+    <string name="title_activity_main">QRCraft Studio</string>
+    <string name="package_name">com.qrcraft.studio</string>
+    <string name="custom_url_scheme">com.qrcraft.studio</string>
+</resources>

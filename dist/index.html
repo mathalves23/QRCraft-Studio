@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/qrcraft-favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="QRCraft Studio - Ferramenta profissional para criar QR Codes personalizados com design único e qualidade superior" />
+    <meta name="keywords" content="QR Code, gerador QR, QRCraft Studio, personalizado, profissional" />
+    <meta name="author" content="QRCraft Studio" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="QRCraft Studio" />
+    <meta name="msapplication-TileColor" content="#0f172a" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://qr-generator.com/" />
+    <meta property="og:title" content="QR Generator - Gerador de QR Code Profissional" />
+    <meta property="og:description" content="Crie QR Codes personalizados com design profissional. Controle total sobre cores, logos e funcionalidades avançadas." />
+    <meta property="og:image" content="/og-image.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://qr-generator.com/" />
+    <meta property="twitter:title" content="QR Generator - Gerador de QR Code Profissional" />
+    <meta property="twitter:description" content="Crie QR Codes personalizados com design profissional. Controle total sobre cores, logos e funcionalidades avançadas." />
+    <meta property="twitter:image" content="/og-image.png" />
+
+    <title>QRCraft Studio - Craft Your Perfect QR Code</title>
+    <script type="module" crossorigin src="/assets/index-BHrs98K_.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-DJG_os-6.js">
+    <link rel="modulepreload" crossorigin href="/assets/ui-DaMxtMqz.js">
+    <link rel="modulepreload" crossorigin href="/assets/qr-BDNrrxUg.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-CJ5w4MFR.css">
+  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+  <body>
+    <div id="root"></div>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      // Registrar Service Worker para PWA
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+              
+              // Verificar atualizações
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // Nova versão disponível
+                    if (confirm('Nova versão disponível! Deseja atualizar?')) {
+                      newWorker.postMessage({ type: 'SKIP_WAITING' });
+                      window.location.reload();
+                    }
+                  }
+                });
+              });
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+
+        // Escutar mudanças no Service Worker
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
+        });
+      }
+
+      // Detectar se app foi instalado
+      let deferredPrompt;
+      const installButton = document.createElement('button');
+      
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Mostrar botão de instalação customizado
+        installButton.style.cssText = `
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+          color: white;
+          border: none;
+          padding: 12px 16px;
+          border-radius: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          z-index: 1000;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        `;
+        installButton.innerHTML = '📱 Instalar App';
+        installButton.onclick = () => {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('PWA instalado');
+            }
+            deferredPrompt = null;
+            installButton.remove();
+          });
+        };
+        
+        document.body.appendChild(installButton);
+      });
+
+      // Esconder botão se já foi instalado
+      window.addEventListener('appinstalled', () => {
+        console.log('PWA foi instalado');
+        if (installButton.parentNode) {
+          installButton.remove();
+        }
+      });
+    </script>
+  </body>
+</html>
+
