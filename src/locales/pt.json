@@ -39,6 +39,14 @@
     "vcardEmail": "Email",
     "vcardURL": "Website"
   },
+  "tools": {
+    "history": "Histórico",
+    "batch": "Em Lote",
+    "scanner": "Scanner",
+    "shortener": "Encurtador",
+    "analytics": "Analytics",
+    "tester": "Testador de QR"
+  },
   "customization": {
     "title": "Personalização",
     "size": "Tamanho",

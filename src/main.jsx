@@ -22,7 +22,7 @@ const loadingMarkup = (
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Suspense fallback={loadingMarkup}>
     <React.StrictMode>
-      <ThemeProvider defaultTheme="system" storageKey="qrcraft-ui-theme">
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <AuthProvider>
           <App />
           <Toaster />

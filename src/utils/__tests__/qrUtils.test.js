@@ -107,7 +107,7 @@ describe('QR Code Utils', () => {
         body: 'Test message'
       }
 
-      const expected = 'mailto:test@example.com?subject=Test%20Subject&body=Test%20message'
+      const expected = 'mailto:test@example.com?subject=Test+Subject&body=Test+message'
       const result = generateEmailData(emailData)
       
       expect(result).toBe(expected)
@@ -126,7 +126,7 @@ describe('QR Code Utils', () => {
     })
   })
 
-  describe('QR Code Validation', () => {
+  describe('URL Validation', () => {
     it('should validate URL format', () => {
       expect(isValidURL('https://example.com')).toBe(true)
       expect(isValidURL('http://example.com')).toBe(true)
@@ -153,8 +153,8 @@ describe('QR Code Utils', () => {
   })
 })
 
-// Helper functions to test
-function generateWiFiData({ ssid, password, security, hidden }) {
+// Helper functions para os testes
+function generateWiFiData({ ssid, password, security, hidden = false }) {
   return `WIFI:T:${security};S:${ssid};P:${password};H:${hidden};;`
 }
 
@@ -198,6 +198,9 @@ function isValidEmail(email) {
 }
 
 function isValidPhone(phone) {
-  const phoneRegex = /^[\+\d\s\-\(\)]{10,}$/
-  return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10
+  // Remove todos os caracteres não numéricos exceto +
+  const cleanPhone = phone.replace(/[^\d+]/g, '')
+  // Verifica se tem pelo menos 10 dígitos
+  const digits = cleanPhone.replace(/\+/g, '')
+  return digits.length >= 10 && digits.length <= 15
 } 

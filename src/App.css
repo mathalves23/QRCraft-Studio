@@ -153,3 +153,48 @@
   background-size: 20px 20px;
 }
 
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #1a1a1a;
+  border-bottom: 1px solid #333;
+}
+
+.logo-area h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.tools-area {
+  display: flex;
+  gap: 1rem;
+}
+
+.tools-area button, .user-area button {
+  background: none;
+  border: 1px solid #555;
+  color: #eee;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tools-area button:hover, .user-area button:hover {
+  background-color: #333;
+  border-color: #777;
+}
+
+.user-area {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+main {
+  padding: 2rem;
+  text-align: center;
+}
+

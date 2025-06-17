@@ -1,92 +1,132 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { notificationHelpers } from '@/lib/supabase';
 
-const NotificationCenter = ({ isOpen, onClose, user, darkMode, showNotification }) => {
+const NotificationCenter = ({ isOpen, onClose, darkMode, showNotification }) => {
+  const { user, isAuthenticated } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Simulação de notificações do sistema
   useEffect(() => {
-    const systemNotifications = [
-      {
-        id: 1,
-        type: 'promotion',
-        title: '🎉 Promoção Especial PRO',
-        message: 'Upgrade para PRO por apenas R$ 15/ano! Oferta limitada até o final do mês.',
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 horas atrás
-        read: false,
-        action: {
-          label: 'Ver Oferta',
-          type: 'upgrade'
-        }
-      },
-      {
-        id: 2,
-        type: 'info',
-        title: '✨ Nova Funcionalidade',
-        message: 'Agora você pode criar QR Codes para redes sociais! Teste o novo template.',
-        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 dia atrás
-        read: user?.plan === 'pro' ? true : false,
-        action: {
-          label: 'Experimentar',
-          type: 'feature'
-        }
-      },
-      {
-        id: 3,
-        type: 'warning',
-        title: '⚠️ Limite de Uso',
-        message: user?.plan === 'standard' ? 
-          `Você já usou ${user?.monthlyUsage || 0}/10 QR Codes este mês. Considere fazer upgrade.` :
-          'Parabéns! Como usuário PRO, você tem QR Codes ilimitados.',
-        timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 dias atrás
-        read: true
-      },
-      {
-        id: 4,
-        type: 'update',
-        title: '🚀 QRCraft Studio 2025',
-        message: 'Bem-vindo à nova versão! Melhorias de performance e nova interface.',
-        timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 semana atrás
-        read: true
-      }
-    ];
+    if (isOpen && isAuthenticated && user) {
+      loadNotifications();
+    }
+  }, [isOpen, isAuthenticated, user]);
 
-    setNotifications(systemNotifications);
-    setUnreadCount(systemNotifications.filter(n => !n.read).length);
-  }, [user]);
-
-  const markAsRead = (notificationId) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === notificationId 
-          ? { ...notification, read: true }
-          : notification
-      )
-    );
-    setUnreadCount(prev => Math.max(0, prev - 1));
-  };
-
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, read: true }))
-    );
-    setUnreadCount(0);
-  };
-
-  const handleAction = (notification) => {
-    markAsRead(notification.id);
+  const loadNotifications = async () => {
+    if (!user) return;
     
-    switch (notification.action?.type) {
+    setIsLoading(true);
+    try {
+      const { data, error } = await notificationHelpers.getUserNotifications(user.id);
+      
+      if (error) {
+        console.error('Erro ao carregar notificações:', error);
+        showNotification?.('Erro ao carregar notificações', 'error');
+      } else {
+        setNotifications(data || []);
+        
+        // Contar não lidas
+        const unread = (data || []).filter(n => !n.read).length;
+        setUnreadCount(unread);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar notificações:', error);
+      showNotification?.('Erro ao carregar dados', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const markAsRead = async (notificationId) => {
+    try {
+      const { error } = await notificationHelpers.markAsRead(notificationId, user.id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Atualizar estado local
+      setNotifications(prev => 
+        prev.map(n => 
+          n.id === notificationId ? { ...n, read: true } : n
+        )
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+      
+    } catch (error) {
+      console.error('Erro ao marcar como lida:', error);
+      showNotification?.('Erro ao atualizar notificação', 'error');
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const { error } = await notificationHelpers.markAllAsRead(user.id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Atualizar estado local
+      setNotifications(prev => 
+        prev.map(n => ({ ...n, read: true }))
+      );
+      setUnreadCount(0);
+      
+      showNotification?.('Todas as notificações foram marcadas como lidas', 'success');
+      
+    } catch (error) {
+      console.error('Erro ao marcar todas como lidas:', error);
+      showNotification?.('Erro ao atualizar notificações', 'error');
+    }
+  };
+
+  const deleteNotification = async (notificationId) => {
+    try {
+      const { error } = await notificationHelpers.deleteNotification(notificationId, user.id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Atualizar estado local
+      setNotifications(prev => prev.filter(n => n.id !== notificationId));
+      
+      showNotification?.('Notificação deletada', 'success');
+      
+    } catch (error) {
+      console.error('Erro ao deletar notificação:', error);
+      showNotification?.('Erro ao deletar notificação', 'error');
+    }
+  };
+
+  const handleNotificationAction = (notification) => {
+    if (!notification.action_type) return;
+
+    switch (notification.action_type) {
       case 'upgrade':
-        showNotification('Redirecionando para upgrade...', 'info');
-        onClose();
+        // Abrir modal de upgrade (implementar depois)
+        console.log('Abrir modal de upgrade');
         break;
       case 'feature':
-        showNotification('Experimentando nova funcionalidade!', 'success');
-        onClose();
+        // Redirecionar para funcionalidade
+        console.log('Abrir funcionalidade');
+        break;
+      case 'link':
+        // Abrir link externo
+        if (notification.action_data?.url) {
+          window.open(notification.action_data.url, '_blank');
+        }
         break;
       default:
         break;
+    }
+
+    // Marcar como lida automaticamente
+    if (!notification.read) {
+      markAsRead(notification.id);
     }
   };
 
@@ -95,38 +135,107 @@ const NotificationCenter = ({ isOpen, onClose, user, darkMode, showNotification 
       promotion: '🎉',
       info: 'ℹ️',
       warning: '⚠️',
-      update: '🚀',
+      error: '❌',
       success: '✅',
-      error: '❌'
+      update: '🚀'
     };
     return icons[type] || 'ℹ️';
   };
 
   const getNotificationColor = (type) => {
     const colors = {
-      promotion: '#f59e0b',
-      info: '#3b82f6',
-      warning: '#f97316',
-      update: '#8b5cf6',
-      success: '#10b981',
-      error: '#ef4444'
+      promotion: 'linear-gradient(135deg, #f59e0b, #d97706)',
+      info: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+      warning: 'linear-gradient(135deg, #f59e0b, #d97706)',
+      error: 'linear-gradient(135deg, #ef4444, #dc2626)',
+      success: 'linear-gradient(135deg, #10b981, #059669)',
+      update: 'linear-gradient(135deg, #8b5cf6, #7c3aed)'
     };
-    return colors[type] || '#6b7280';
+    return colors[type] || colors.info;
   };
 
-  const formatTimestamp = (timestamp) => {
+  const formatTimeAgo = (dateString) => {
+    const date = new Date(dateString);
     const now = new Date();
-    const diff = now - timestamp;
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-
-    if (minutes < 60) return `${minutes}m atrás`;
-    if (hours < 24) return `${hours}h atrás`;
-    return `${days}d atrás`;
+    const diffTime = now - date;
+    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffHours < 1) {
+      return 'Agora mesmo';
+    } else if (diffHours < 24) {
+      return `${diffHours}h atrás`;
+    } else if (diffDays < 7) {
+      return `${diffDays}d atrás`;
+    } else {
+      return date.toLocaleDateString('pt-BR');
+    }
   };
 
   if (!isOpen) return null;
+
+  if (!isAuthenticated) {
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0, 0, 0, 0.8)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: '1rem'
+      }}>
+        <div style={{
+          background: darkMode 
+            ? 'linear-gradient(135deg, #1e293b, #334155)' 
+            : 'linear-gradient(135deg, #ffffff, #f8fafc)',
+          borderRadius: '24px',
+          padding: '2rem',
+          maxWidth: '400px',
+          width: '100%',
+          textAlign: 'center',
+          border: darkMode 
+            ? '1px solid rgba(71, 85, 105, 0.5)' 
+            : '1px solid rgba(229, 231, 235, 0.5)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+        }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔔</div>
+          <h3 style={{
+            fontSize: '1.25rem',
+            fontWeight: '600',
+            marginBottom: '0.5rem',
+            color: darkMode ? '#cbd5e1' : '#374151'
+          }}>
+            Faça login para ver notificações
+          </h3>
+          <p style={{
+            color: darkMode ? '#94a3b8' : '#6b7280',
+            marginBottom: '1.5rem'
+          }}>
+            Entre na sua conta para acessar suas notificações
+          </p>
+          <button
+            onClick={onClose}
+            style={{
+              padding: '0.75rem 1.5rem',
+              background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              fontWeight: '600'
+            }}
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -135,70 +244,52 @@ const NotificationCenter = ({ isOpen, onClose, user, darkMode, showNotification 
       left: 0,
       right: 0,
       bottom: 0,
-      background: 'rgba(0, 0, 0, 0.7)',
+      background: 'rgba(0, 0, 0, 0.8)',
       display: 'flex',
-      alignItems: 'flex-start',
+      alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000,
-      padding: '2rem'
+      padding: '1rem'
     }}>
       <div style={{
-        background: darkMode ? '#1e293b' : '#ffffff',
-        borderRadius: '20px',
+        background: darkMode 
+          ? 'linear-gradient(135deg, #1e293b, #334155)' 
+          : 'linear-gradient(135deg, #ffffff, #f8fafc)',
+        borderRadius: '24px',
+        padding: '2rem',
+        maxWidth: '600px',
         width: '100%',
-        maxWidth: '500px',
-        maxHeight: '80vh',
+        maxHeight: '90vh',
         overflow: 'hidden',
-        border: darkMode ? '1px solid #475569' : '1px solid #e5e7eb',
+        border: darkMode 
+          ? '1px solid rgba(71, 85, 105, 0.5)' 
+          : '1px solid rgba(229, 231, 235, 0.5)',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-        marginTop: '2rem'
+        display: 'flex',
+        flexDirection: 'column'
       }}>
         {/* Header */}
         <div style={{
-          padding: '1.5rem',
-          borderBottom: darkMode ? '1px solid #475569' : '1px solid #e5e7eb',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          marginBottom: '1.5rem'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div style={{
               width: '40px',
               height: '40px',
-              background: '#3b82f6',
+              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
               borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              position: 'relative'
+              justifyContent: 'center'
             }}>
-              <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
-              {unreadCount > 0 && (
-                <div style={{
-                  position: 'absolute',
-                  top: '-4px',
-                  right: '-4px',
-                  background: '#ef4444',
-                  color: 'white',
-                  borderRadius: '50%',
-                  width: '20px',
-                  height: '20px',
-                  fontSize: '0.75rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 'bold'
-                }}>
-                  {unreadCount}
-                </div>
-              )}
+              🔔
             </div>
-            
             <div>
               <h2 style={{
-                fontSize: '1.25rem',
+                fontSize: '1.5rem',
                 fontWeight: 'bold',
                 color: darkMode ? '#f1f5f9' : '#1f2937',
                 margin: 0
@@ -210,23 +301,24 @@ const NotificationCenter = ({ isOpen, onClose, user, darkMode, showNotification 
                 color: darkMode ? '#94a3b8' : '#6b7280',
                 margin: 0
               }}>
-                {unreadCount > 0 ? `${unreadCount} não lidas` : 'Todas lidas'}
+                {unreadCount} não lidas
               </p>
             </div>
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
                 style={{
-                  background: 'none',
-                  border: `1px solid ${darkMode ? '#475569' : '#d1d5db'}`,
+                  padding: '0.5rem 1rem',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: 'white',
+                  border: 'none',
                   borderRadius: '8px',
-                  padding: '0.5rem 0.75rem',
+                  cursor: 'pointer',
                   fontSize: '0.75rem',
-                  color: darkMode ? '#94a3b8' : '#6b7280',
-                  cursor: 'pointer'
+                  fontWeight: '600'
                 }}
               >
                 Marcar todas como lidas
@@ -236,152 +328,217 @@ const NotificationCenter = ({ isOpen, onClose, user, darkMode, showNotification 
             <button
               onClick={onClose}
               style={{
-                background: 'none',
+                background: darkMode ? 'rgba(71, 85, 105, 0.5)' : 'rgba(229, 231, 235, 0.5)',
                 border: 'none',
-                fontSize: '1.5rem',
+                borderRadius: '12px',
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 cursor: 'pointer',
-                color: darkMode ? '#94a3b8' : '#6b7280',
-                padding: '0.5rem',
-                borderRadius: '8px'
+                color: darkMode ? '#cbd5e1' : '#6b7280',
+                fontSize: '1.25rem'
               }}
             >
-              ×
+              ✕
             </button>
           </div>
         </div>
 
-        {/* Notifications List */}
-        <div style={{
-          maxHeight: 'calc(80vh - 120px)',
-          overflow: 'auto',
-          padding: '0.5rem'
+        {/* Content */}
+        <div style={{ 
+          flex: 1, 
+          overflowY: 'auto',
+          paddingRight: '0.5rem'
         }}>
-          {notifications.length === 0 ? (
+          {isLoading ? (
             <div style={{
-              padding: '2rem',
               textAlign: 'center',
+              padding: '3rem'
+            }}>
+              <div style={{
+                width: '40px',
+                height: '40px',
+                border: '3px solid rgba(245, 158, 11, 0.3)',
+                borderTop: '3px solid #f59e0b',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 1rem'
+              }} />
+              <p style={{
+                fontSize: '1rem',
+                color: darkMode ? '#cbd5e1' : '#374151'
+              }}>
+                Carregando notificações...
+              </p>
+            </div>
+          ) : notifications.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              padding: '3rem',
               color: darkMode ? '#94a3b8' : '#6b7280'
             }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔔</div>
-              <p>Nenhuma notificação por enquanto</p>
+              <h3 style={{
+                fontSize: '1.25rem',
+                fontWeight: '600',
+                marginBottom: '0.5rem',
+                color: darkMode ? '#cbd5e1' : '#374151'
+              }}>
+                Nenhuma notificação
+              </h3>
+              <p>Você está em dia! 🎉</p>
             </div>
           ) : (
-            notifications.map(notification => (
-              <div
-                key={notification.id}
-                style={{
-                  background: notification.read 
-                    ? 'transparent' 
-                    : darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
-                  borderRadius: '12px',
-                  padding: '1rem',
-                  margin: '0.5rem',
-                  border: notification.read 
-                    ? 'none' 
-                    : darkMode ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid rgba(59, 130, 246, 0.1)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onClick={() => !notification.read && markAsRead(notification.id)}
-              >
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+            <div style={{ space: '0.75rem' }}>
+              {notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  style={{
+                    background: notification.read 
+                      ? (darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(248, 250, 252, 0.5)')
+                      : (darkMode ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)'),
+                    borderRadius: '12px',
+                    padding: '1rem',
+                    marginBottom: '0.75rem',
+                    border: notification.read 
+                      ? `1px solid ${darkMode ? 'rgba(71, 85, 105, 0.3)' : 'rgba(229, 231, 235, 0.3)'}`
+                      : `2px solid ${darkMode ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.3)'}`,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onClick={() => handleNotificationAction(notification)}
+                >
                   <div style={{
-                    width: '32px',
-                    height: '32px',
-                    background: getNotificationColor(notification.type),
-                    borderRadius: '8px',
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1rem',
-                    flexShrink: 0
+                    alignItems: 'flex-start',
+                    gap: '0.75rem'
                   }}>
-                    {getNotificationIcon(notification.type)}
-                  </div>
-
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                      <h3 style={{
-                        fontSize: '0.875rem',
-                        fontWeight: notification.read ? '500' : 'bold',
-                        color: darkMode ? '#f1f5f9' : '#1f2937',
-                        margin: 0,
-                        flex: 1
-                      }}>
-                        {notification.title}
-                      </h3>
-                      
-                      {!notification.read && (
-                        <div style={{
-                          width: '8px',
-                          height: '8px',
-                          background: '#3b82f6',
-                          borderRadius: '50%',
-                          flexShrink: 0
-                        }} />
-                      )}
-                    </div>
-
-                    <p style={{
-                      fontSize: '0.875rem',
-                      color: darkMode ? '#94a3b8' : '#6b7280',
-                      margin: '0 0 0.5rem 0',
-                      lineHeight: '1.4'
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      background: getNotificationColor(notification.type),
+                      borderRadius: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1.25rem',
+                      flexShrink: 0
                     }}>
-                      {notification.message}
-                    </p>
-
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{
-                        fontSize: '0.75rem',
-                        color: darkMode ? '#64748b' : '#9ca3af'
+                      {getNotificationIcon(notification.type)}
+                    </div>
+                    
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: '0.5rem'
                       }}>
-                        {formatTimestamp(notification.timestamp)}
-                      </span>
-
-                      {notification.action && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAction(notification);
-                          }}
-                          style={{
-                            background: getNotificationColor(notification.type),
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            padding: '0.25rem 0.75rem',
-                            fontSize: '0.75rem',
-                            fontWeight: '500',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          {notification.action.label}
-                        </button>
-                      )}
+                        <h4 style={{
+                          fontSize: '0.9rem',
+                          fontWeight: '600',
+                          color: darkMode ? '#f1f5f9' : '#1f2937',
+                          margin: 0
+                        }}>
+                          {notification.title}
+                        </h4>
+                        <span style={{
+                          fontSize: '0.75rem',
+                          color: darkMode ? '#94a3b8' : '#6b7280'
+                        }}>
+                          {formatTimeAgo(notification.created_at)}
+                        </span>
+                      </div>
+                      
+                      <p style={{
+                        fontSize: '0.8rem',
+                        color: darkMode ? '#cbd5e1' : '#6b7280',
+                        lineHeight: '1.4',
+                        margin: '0 0 0.75rem 0'
+                      }}>
+                        {notification.message}
+                      </p>
+                      
+                      <div style={{
+                        display: 'flex',
+                        gap: '0.5rem',
+                        alignItems: 'center'
+                      }}>
+                        {notification.action_type && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleNotificationAction(notification);
+                            }}
+                            style={{
+                              padding: '0.25rem 0.75rem',
+                              background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '6px',
+                              fontSize: '0.75rem',
+                              fontWeight: '600',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {notification.action_type === 'upgrade' && 'Ver Oferta'}
+                            {notification.action_type === 'feature' && 'Experimentar'}
+                            {notification.action_type === 'link' && 'Abrir Link'}
+                          </button>
+                        )}
+                        
+                        {!notification.read && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markAsRead(notification.id);
+                            }}
+                            style={{
+                              padding: '0.25rem 0.75rem',
+                              background: 'rgba(16, 185, 129, 0.1)',
+                              color: '#10b981',
+                              border: '1px solid rgba(16, 185, 129, 0.3)',
+                              borderRadius: '6px',
+                              fontSize: '0.75rem',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Marcar como lida
+                          </button>
+                        )}
+                        
+                        {notification.user_id && ( // Só pode deletar notificações próprias
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteNotification(notification.id);
+                            }}
+                            style={{
+                              padding: '0.25rem 0.5rem',
+                              background: 'rgba(239, 68, 68, 0.1)',
+                              color: '#ef4444',
+                              border: '1px solid rgba(239, 68, 68, 0.3)',
+                              borderRadius: '6px',
+                              fontSize: '0.75rem',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            🗑️
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
       </div>
     </div>
   );
-};
-
-// Hook para gerenciar notificações
-export const useNotifications = () => {
-  const [unreadCount, setUnreadCount] = useState(3); // Simulação inicial
-
-  const getUnreadCount = () => unreadCount;
-  
-  const markAsRead = () => {
-    setUnreadCount(prev => Math.max(0, prev - 1));
-  };
-
-  return { unreadCount: getUnreadCount(), markAsRead };
 };
 
 export default NotificationCenter; 
