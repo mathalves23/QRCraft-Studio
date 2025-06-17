@@ -4,7 +4,7 @@ import App from './App.jsx'
 import './index.css'
 import { AuthProvider } from './hooks/useAuth.jsx'
 import { ThemeProvider } from '@/components/theme-provider.jsx'
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "@/components/ui/sonner.jsx"
 
 // Configuração do i18next
 import './i18n.js'
