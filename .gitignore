@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+backend/node_modules/
 .pnp
 .pnp.js
 
@@ -78,4 +79,3 @@ ios/App/Pods/
 # Temporary files
 .tmp/
 .temp/
-node_modules
