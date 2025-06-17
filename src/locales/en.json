@@ -1,0 +1,70 @@
+{
+  "app": {
+    "title": "QRCraft Studio",
+    "subtitle": "Craft Your Perfect QR Code",
+    "description": "Professional tool to create custom QR Codes with unique design and superior quality"
+  },
+  "generator": {
+    "title": "QR Code Generator",
+    "inputText": "Enter QR Code content",
+    "generateButton": "Generate QR Code",
+    "generatingButton": "Generating...",
+    "downloadButton": "Download QR Code",
+    "errorGeneric": "Error generating QR Code. Check the entered data.",
+    "errorEmpty": "Please enter text or fill in the required fields"
+  },
+  "templates": {
+    "url": "URL",
+    "text": "Text",
+    "email": "Email",
+    "wifi": "WiFi",
+    "vcard": "vCard",
+    "phone": "Phone",
+    "sms": "SMS",
+    "whatsapp": "WhatsApp"
+  },
+  "forms": {
+    "urlPlaceholder": "Enter or paste the URL",
+    "textPlaceholder": "Enter your custom text",
+    "emailTo": "To (Email)",
+    "emailSubject": "Subject",
+    "emailBody": "Body",
+    "wifiSSID": "Network Name (SSID)",
+    "wifiPassword": "Password",
+    "wifiSecurity": "Security",
+    "vcardFirstName": "First Name",
+    "vcardLastName": "Last Name",
+    "vcardOrg": "Company",
+    "vcardPhone": "Phone",
+    "vcardEmail": "Email",
+    "vcardURL": "Website"
+  },
+  "customization": {
+    "title": "Customization",
+    "size": "Size",
+    "color": "QR Code Color",
+    "backgroundColor": "Background Color",
+    "logo": "Add Logo",
+    "uploadLogo": "Upload Logo",
+    "logoSize": "Logo Size",
+    "logoMargin": "Logo Margin"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "profile": "Profile",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "loginSuccess": "Login successful!",
+    "signupSuccess": "Account created! Check your email to activate.",
+    "logoutSuccess": "Logout successful!"
+  },
+  "notifications": {
+    "qrGenerated": "QR Code generated successfully!",
+    "qrDownloaded": "Download started!",
+    "textCopied": "Text copied to clipboard!",
+    "error": "An error occurred"
+  }
+} 
