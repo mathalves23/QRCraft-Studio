@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 import { AuthProvider } from './hooks/useAuth.jsx'
-import { ThemeProvider } from './components/theme-provider.jsx'
+import { ThemeProvider } from '@/components/theme-provider.jsx'
 import { Toaster } from "@/components/ui/toaster"
 
 // Configuração do i18next
