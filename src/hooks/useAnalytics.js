@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import analyticsService from '../lib/analytics'
-import { useAuth } from './useAuth'
+import { useAuth } from './useAuth.jsx'
 
 // Hook para rastreamento de eventos de analytics
 export function useAnalytics() {
