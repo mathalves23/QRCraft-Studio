@@ -11,20 +11,30 @@ NC='\033[0m' # No Color
 # Verificar se o Netlify CLI está instalado
 if ! command -v netlify &> /dev/null; then
     echo -e "${RED}❌ Netlify CLI não encontrado. Instalando...${NC}"
-    npm install -g netlify-cli
+    npm install -g netlify-cli --registry=https://registry.npmjs.org/ --verbose
+fi
+
+# Verificar se o pnpm está instalado
+if ! command -v pnpm &> /dev/null; then
+    echo -e "${RED}❌ pnpm não encontrado. Instalando...${NC}"
+    npm install -g pnpm@8.15.0 --registry=https://registry.npmjs.org/ --verbose
 fi
 
 # Fazer login no Netlify (se necessário)
 echo -e "${BLUE}🔐 Verificando autenticação do Netlify...${NC}"
 netlify status || netlify login
 
+# Configurar pnpm registry
+echo -e "${BLUE}⚙️  Configurando pnpm registry...${NC}"
+pnpm config set registry https://registry.npmjs.org/
+
 # Instalar dependências
-echo -e "${BLUE}📦 Instalando dependências...${NC}"
-npm ci
+echo -e "${BLUE}📦 Instalando dependências com pnpm...${NC}"
+pnpm install --no-frozen-lockfile
 
 # Fazer build do projeto
 echo -e "${BLUE}🏗️  Fazendo build do projeto...${NC}"
-npm run build
+pnpm build
 
 # Verificar se o build foi criado
 if [ ! -d "dist" ]; then

@@ -78,3 +78,4 @@ ios/App/Pods/
 # Temporary files
 .tmp/
 .temp/
+node_modules
