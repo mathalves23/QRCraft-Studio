@@ -7,6 +7,7 @@ import Modals from './components/Modals';
 import './App.css';
 import { useAuth } from '@/hooks/useAuth';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { useNotifications } from '@/hooks/useNotifications';
 import { useTheme } from "@/components/theme-provider";
 import { qrHelpers, analyticsHelpers } from '@/lib/supabase';
 
