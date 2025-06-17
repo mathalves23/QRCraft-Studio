@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QRCraft PWA Icon Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .container { background: white; padding: 20px; border-radius: 10px; max-width: 600px; margin: 0 auto; }
+        canvas { border: 1px solid #ddd; margin: 10px; }
+        button { background: #3b82f6; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #1d4ed8; }
+        .download-links { margin-top: 20px; }
+        .download-links a { display: inline-block; margin: 5px; padding: 8px 15px; background: #10b981; color: white; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 QRCraft PWA Icon Generator</h1>
+        <p>Click the button below to generate PWA icons for QRCraft Studio:</p>
+        
+        <button onclick="generateIcons()">🚀 Generate PWA Icons</button>
+        
+        <div id="canvases"></div>
+        
+        <div class="download-links" id="downloads" style="display: none;">
+            <h3>📥 Download Generated Icons:</h3>
+        </div>
+    </div>
+
+    <script>
+        function generateIcon(size, canvasId, filename) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            canvas.id = canvasId;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#3b82f6');
+            gradient.addColorStop(1, '#1d4ed8');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // QR Code inspired pattern
+            const blockSize = Math.floor(size / 12);
+            const margin = blockSize;
+            
+            ctx.fillStyle = '#ffffff';
+            
+            // Corner finder patterns (QR Code style)
+            const cornerSize = blockSize * 3;
+            
+            // Top-left corner
+            ctx.fillRect(margin, margin, cornerSize, cornerSize);
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(margin + blockSize, margin + blockSize, blockSize, blockSize);
+            
+            // Top-right corner
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(size - margin - cornerSize, margin, cornerSize, cornerSize);
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(size - margin - cornerSize + blockSize, margin + blockSize, blockSize, blockSize);
+            
+            // Bottom-left corner
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(margin, size - margin - cornerSize, cornerSize, cornerSize);
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(margin + blockSize, size - margin - cornerSize + blockSize, blockSize, blockSize);
+            
+            // Center logo area
+            ctx.fillStyle = '#ffffff';
+            const centerSize = blockSize * 4;
+            const centerX = (size - centerSize) / 2;
+            const centerY = (size - centerSize) / 2;
+            
+            // Rounded rectangle for center
+            ctx.beginPath();
+            ctx.roundRect(centerX, centerY, centerSize, centerSize, blockSize);
+            ctx.fill();
+            
+            // QR text in center
+            ctx.fillStyle = '#3b82f6';
+            ctx.font = `bold ${Math.floor(size / 8)}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('QR', size / 2, size / 2);
+            
+            // Add some decorative blocks
+            ctx.fillStyle = '#ffffff';
+            const positions = [
+                [5 * blockSize, 5 * blockSize],
+                [7 * blockSize, 5 * blockSize],
+                [5 * blockSize, 7 * blockSize],
+                [7 * blockSize, 7 * blockSize],
+                [9 * blockSize, 5 * blockSize],
+                [5 * blockSize, 9 * blockSize]
+            ];
+            
+            positions.forEach(([x, y]) => {
+                if (x < size - margin && y < size - margin) {
+                    ctx.fillRect(x, y, blockSize * 0.8, blockSize * 0.8);
+                }
+            });
+            
+            return canvas;
+        }
+        
+        function generateIcons() {
+            const canvasesDiv = document.getElementById('canvases');
+            const downloadsDiv = document.getElementById('downloads');
+            
+            canvasesDiv.innerHTML = '';
+            downloadsDiv.innerHTML = '<h3>📥 Download Generated Icons:</h3>';
+            
+            const sizes = [
+                { size: 192, name: 'pwa-192x192.png', label: '192x192 (PWA Standard)' },
+                { size: 512, name: 'pwa-512x512.png', label: '512x512 (PWA Large)' },
+                { size: 180, name: 'apple-touch-icon.png', label: '180x180 (Apple Touch)' }
+            ];
+            
+            sizes.forEach(({ size, name, label }) => {
+                const canvas = generateIcon(size, `canvas-${size}`, name);
+                
+                // Add canvas to display
+                const wrapper = document.createElement('div');
+                wrapper.style.display = 'inline-block';
+                wrapper.style.margin = '10px';
+                wrapper.style.textAlign = 'center';
+                
+                const title = document.createElement('div');
+                title.textContent = label;
+                title.style.marginBottom = '5px';
+                title.style.fontWeight = 'bold';
+                
+                wrapper.appendChild(title);
+                wrapper.appendChild(canvas);
+                canvasesDiv.appendChild(wrapper);
+                
+                // Create download link
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = name;
+                    link.textContent = `Download ${name}`;
+                    link.style.display = 'inline-block';
+                    link.style.margin = '5px';
+                    link.style.padding = '8px 15px';
+                    link.style.background = '#10b981';
+                    link.style.color = 'white';
+                    link.style.textDecoration = 'none';
+                    link.style.borderRadius = '5px';
+                    
+                    downloadsDiv.appendChild(link);
+                });
+            });
+            
+            downloadsDiv.style.display = 'block';
+            
+            // Instructions
+            const instructions = document.createElement('div');
+            instructions.innerHTML = `
+                <h4>📋 Instructions:</h4>
+                <ol>
+                    <li>Click each "Download" button above to save the icon files</li>
+                    <li>Place all downloaded PNG files in your <code>public/</code> folder</li>
+                    <li>The PWA will automatically use these icons</li>
+                </ol>
+                <p><strong>Note:</strong> After adding the icons, rebuild and redeploy your app!</p>
+            `;
+            instructions.style.marginTop = '20px';
+            instructions.style.padding = '15px';
+            instructions.style.background = '#f0f9ff';
+            instructions.style.borderRadius = '8px';
+            instructions.style.border = '1px solid #0ea5e9';
+            
+            downloadsDiv.appendChild(instructions);
+        }
+        
+        // Add roundRect support for older browsers
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, radius) {
+                this.beginPath();
+                this.moveTo(x + radius, y);
+                this.lineTo(x + width - radius, y);
+                this.quadraticCurveTo(x + width, y, x + width, y + radius);
+                this.lineTo(x + width, y + height - radius);
+                this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                this.lineTo(x + radius, y + height);
+                this.quadraticCurveTo(x, y + height, x, y + height - radius);
+                this.lineTo(x, y + radius);
+                this.quadraticCurveTo(x, y, x + radius, y);
+                this.closePath();
+            };
+        }
+    </script>
+</body>
+</html> 
