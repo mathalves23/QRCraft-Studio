@@ -19,7 +19,16 @@
     "android:build": "vite build && npx cap sync android && npx cap build android",
     "deploy:web": "vite build && echo 'Build web pronto para deploy'",
     "deploy:stores": "npm run ios:build && npm run android:build && echo 'Builds prontos para App Store e Google Play'",
-    "test:mobile": "npx cap run ios --livereload && npx cap run android --livereload"
+    "test:mobile": "npx cap run ios --livereload && npx cap run android --livereload",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest --watch",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:all": "pnpm test:run && pnpm test:e2e"
   },
   "dependencies": {
     "@capacitor/android": "^6.2.1",
