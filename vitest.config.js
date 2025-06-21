@@ -9,6 +9,20 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.js'],
     css: true,
+    include: [
+      'src/**/*.test.{js,jsx,ts,tsx}',
+      'src/**/*.spec.{js,jsx,ts,tsx}'
+    ],
+    exclude: [
+      'node_modules',
+      'dist',
+      'build',
+      'coverage',
+      'tests', // exclui toda a pasta de testes E2E
+      '**/tests/**',
+      '**/e2e/**',
+      '**/*.e2e.{js,ts,jsx,tsx}'
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -19,7 +33,11 @@ export default defineConfig({
         '**/*.config.ts',
         'dist/',
         'build/',
-        'coverage/'
+        'coverage/',
+        'tests/',
+        '**/tests/**',
+        '**/e2e/**',
+        '**/*.e2e.{js,ts,jsx,tsx}'
       ]
     }
   },

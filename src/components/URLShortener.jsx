@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const URLShortener = ({ isOpen, onClose, onShortenResult, darkMode, showNotification, user, isFeatureAvailable }) => {
+const URLShortener = ({ isOpen, onClose, onShortenResult, darkMode, showNotification = () => {}, user, isFeatureAvailable }) => {
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [shortenedUrls, setShortenedUrls] = useState([]);

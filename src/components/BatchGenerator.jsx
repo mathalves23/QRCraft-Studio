@@ -1,14 +1,17 @@
 import React from 'react';
 
 const BatchGenerator = ({ 
-  batchTexts, 
-  setBatchTexts, 
+  batchTexts = [''], 
+  setBatchTexts = () => {}, 
   onGenerate, 
   isGenerating, 
   darkMode, 
-  showNotification,
-  onClose 
+  showNotification = () => {},
+  onClose,
+  isOpen = true
 }) => {
+  if (!isOpen) return null;
+
   const addTextInput = () => {
     setBatchTexts([...batchTexts, '']);
   };
@@ -55,7 +58,7 @@ const BatchGenerator = ({
     }
   };
 
-  const validTexts = batchTexts.filter(text => text.trim());
+  const validTexts = (batchTexts || []).filter(text => text.trim());
 
   return (
     <div style={{
